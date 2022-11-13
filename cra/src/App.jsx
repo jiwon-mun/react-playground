@@ -1,40 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
-import Button from './Button'
-import Counter from './Counter'
-import { useRef } from 'react'
+import React from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import { useRef } from "react";
+import RHF from "./RHF";
 
-function App() {
-  console.log("App")
-  const ref = useRef();
-  return (
-    
-    <div className="App">
-                <Button setCount={ref} />
+function Child({values}) {
+  const [state, setState] = useState();
+  
+  console.log("CUSTOM CHILD")
 
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      
-      <div className="card">
-          <Counter ref={ref} />
+  useEffect(()=> {
+    values.firstName.listener = (v)=> {
+      setState(v)
+    }
+  },[])
 
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+
+  return <p>Watch: {state}</p>;
 }
 
+
+const Custom = () => {
+  console.log("Custom")
+  const {current: values} = useRef({
+    firstName : {
+      setValue: function(v) {
+        this.value = v
+        this.listener(v)
+      },
+      listener: null,
+      value: 0,
+    }
+  })
+
+  return <div>
+  <button onClick={()=>values.firstName.setValue(values.firstName.value + 1)}></button>
+  <Child values={values} />
+  </div>
+}
+
+function App() {
+ return <div><Custom /><RHF /></div>
+}
 export default App
